@@ -3,6 +3,8 @@ import java.lang.Error
 
 fun main(args: Array<String>) {
     scan(true)
+    FuncE()
+    println("program end successful")
 }
 
 data class Token (var key: Char, var value: Int){}
@@ -15,18 +17,15 @@ var list_of_world = mutableListOf<String>()
 var list_of_apostrof = mutableListOf<String>()
 var list_of_indeficator = mutableListOf<String>()
 var T = mutableListOf<Token>()
-var index_T = 0;
-
-var currentToken: Token = TODO()
-var nextToken: Token = TODO()
-
+var index_T = -1;
+var buf_index_T = -1
+var T_Token = Token(' ',0)
 
 /*
  C - numbers
- R - singleDelimiters
- D - doubleDelimiters
- L - literals
  K - keywords
+ O - singleDelimiters
+ D - doubleDelimiters
  I - identificators
 */
 fun search(stringList: MutableList<String>, searchString: String): Int {
@@ -40,97 +39,143 @@ fun search(stringList: MutableList<String>, searchString: String): Int {
     return index
 }
 
-fun scanF(bool: Boolean) : Token{
-    return if (bool == true){
-        T[index_T]
-    } else {
-        index_T++
-        T[index_T]
-    }
+fun ScanPeak() {
+    buf_index_T = ++index_T
+    index_T--
 }
+
+fun Scan() : Token{
+    return T[index_T]
+}
+
+
+fun element (token: Token) : String {
+    var result: String = ""
+    when(token.key) {
+        'C' -> {
+            result = token.value.toString()
+        }
+        'O' -> {
+            result = list_of_one_literal[token.value]
+        }
+        'D' -> {
+            result = list_of_two_literal[token.value]
+        }
+        'K' -> {
+            result = list_of_world[token.value]
+        }
+        'I' -> {
+            result = list_of_indeficator[token.value]
+        }
+    }
+    return result
+}
+
 
 fun FuncE()
 {
     println("E func Start")
-    FuncT(ref T, ref j);
-    ScanPeek(ref T, ref j);
-    while (!((T.type == 'R' && j == "$") || (T.type == 'R' && j == ")")))
+    FuncT()
+    buf_index_T = ++index_T
+    index_T--
+    while (!((T[buf_index_T].key == 'O' && element(T[buf_index_T]) == "$") || (T[buf_index_T].key == 'O' && element(T[buf_index_T]) == ")")))
     {
-        if (T.type == 'R' && j == "+")
+        if (T[buf_index_T].key == 'O' && element(T[buf_index_T]) == "+")
         {
-            Scan(ref T, ref j);
-            FuncT(ref T, ref j);
+            index_T++
+            FuncT()
         }
         else
         {
-            if (T.type == 'R' && j == "-")
+            if (T[buf_index_T].key == 'O' && element(T[buf_index_T]) == "-")
             {
-                Scan(ref T, ref j);
-                FuncT(ref T, ref j);
+                index_T++
+                FuncT()
             }
             else Err(1); // нет знаков '-' или '+'
         }
-        ScanPeek(ref T, ref j);
+        buf_index_T = ++index_T
+        index_T--
     }
-    Console.WriteLine("E func ended");
+    println("E func ended");
 }
 
 fun FuncT()
 {
-    Console.WriteLine("T func Start");
-    FuncF(ref T, ref j);
-    ScanPeek(ref T, ref j);
-    while (!((T.type == 'R' && j == "$") || (T.type == 'R' && j == ")")
-                || (T.type == 'R' && j == "+") || (T.type == 'R' && j == "-")))
+    println("T func Start")
+    FuncF()
+
+    while (!((T[buf_index_T].key == 'O' && element(T[buf_index_T]) == "$") || (T[buf_index_T].key == 'O' && element(T[buf_index_T]) == ")")
+                || (T[buf_index_T].key == 'O' && element(T[buf_index_T]) == "+") || (T[buf_index_T].key == 'O' && element(T[buf_index_T]) == "-")))
     {
-        ScanPeek(ref T, ref j);
-        if (T.type == 'R' && j == "*")
+        buf_index_T = ++index_T
+        index_T--
+        if (T[buf_index_T].key == 'O' && element(T[buf_index_T]) == "*")
         {
-            Scan(ref T, ref j);
-            FuncF(ref T, ref j);
+            index_T++
+            FuncF()
         }
         else
         {
-            if (T.type == 'R' && j == "/")
+            if (T[buf_index_T].key == 'O' && element(T[buf_index_T]) == "/")
             {
-                Scan(ref T, ref j);
-                FuncF(ref T, ref j);
+                index_T++
+                FuncF()
             }
             else Err(2); // нет знаков '*' или '/'
         }
-        ScanPeek(ref T, ref j);
+        buf_index_T = ++index_T
+        index_T--
     }
-    Console.WriteLine("T func ended");
+    println("T func ended");
 }
 
 fun FuncF()
 {
+    buf_index_T = ++index_T
+    index_T--
     println("F func Start");
-    currentToken = scanF(true);
-    nextToken = scanF(false);
-    if (nextToken.key == 'I') Scan(ref T, ref j);
+    if (T[buf_index_T].key == 'I') index_T++
     else
     {
-        if (T.type == 'C') Scan(ref T, ref j);
+        if (T[buf_index_T].key == 'C') index_T++
         else
         {
-            if (T.type == 'R' && j == "(")
+            if (T[buf_index_T].key == 'O' && element(T[buf_index_T]) == "(")
             {
-                Scan(ref T, ref j);
-                FuncE(ref T, ref j);
-                if (T.type == 'R' && j == ")") Scan(ref T, ref j);
+                index_T++
+                FuncE()
+                if (T[index_T].key == 'O' && element(T[index_T]) == ")") index_T++
                 else Err(3); // нет закрывающей скобки
             }
             else Err(4); // нет индекса, числа или скобки
         }
     }
-    Console.WriteLine("F func ended");
+    println("F func ended");
 }
 
-
-
-
-
+fun Err (x: Int) {
+    when(x){
+        0 -> {
+            println("Error 0")
+        }
+        1 -> {
+            println("Error 1")
+        }
+        2 -> {
+            println("Error 2")
+        }
+        3 -> {
+            println("Error 3")
+        }
+        4 -> {
+            println("Error 4")
+        }
+        5 -> {
+            println("Error 5")
+        }
+    }
+}
 fun scan(start: Boolean){
     //Чтение из файлов
     val a = File("out/Stroka.txt")
@@ -206,6 +251,7 @@ fun scan(start: Boolean){
                     currentToken += text[i]
                     i++
                 }
+                i--
                 if (currentToken.isNotEmpty()) {
                     val number = currentToken.toInt()
                     println("C" + number + " ${number}")
@@ -315,10 +361,10 @@ fun scan(start: Boolean){
         }
         i++
     }
-    for (index in T){
-        print(index.key)
-        println(index.value)
-    }
+//    for (index in T){
+//        print(index.key)
+//        println(index.value)
+//    }
 //      println(list_of_indeficator)
 //    println("Массив чисел: ${list_of_numbers}")
 //    println("Массив слов спец ${list_of_world_result}")

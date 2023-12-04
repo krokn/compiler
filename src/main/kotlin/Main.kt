@@ -3,7 +3,7 @@ import java.lang.Error
 
 fun main(args: Array<String>) {
     scan(true)
-    FuncE()
+    FuncVl()
     println("program end successful")
 }
 
@@ -20,6 +20,8 @@ var T = mutableListOf<Token>()
 var index_T = -1;
 var buf_index_T = -1
 var T_Token = Token(' ',0)
+var notClosedBrackets = 0
+var isLogicExpression = false
 
 /*
  C - numbers
@@ -41,7 +43,6 @@ fun search(stringList: MutableList<String>, searchString: String): Int {
 
 fun ScanPeak() {
     buf_index_T = ++index_T
-    index_T--
 }
 
 fun Scan() : Token{
@@ -71,108 +72,330 @@ fun element (token: Token) : String {
     return result
 }
 
+fun besconechost () {
+    while (true) {}
+}
 
 fun FuncE()
 {
-    println("E func Start")
+    println("E func Start $index_T")
     FuncT()
-    buf_index_T = ++index_T
-    index_T--
-    while (!((T[buf_index_T].key == 'O' && element(T[buf_index_T]) == "$") || (T[buf_index_T].key == 'O' && element(T[buf_index_T]) == ")")))
+    index_T++ // МБ придется убрать
+    println("E func Start после T $index_T")
+    while (!((T[index_T].key == 'O' && element(T[index_T]) == "$") || (T[index_T].key == 'O' && element(T[index_T]) == ")")))
     {
-        if (T[buf_index_T].key == 'O' && element(T[buf_index_T]) == "+")
+        println("Зашли в цикл E $index_T")
+        if ((((T[index_T].key == 'O' && element(T[index_T]) == ">") || (T[index_T].key == 'O' && element(T[index_T]) == "<") || (T[index_T].key == 'O' && element(T[index_T]) == "=") || (T[index_T].key == 'D' && element(T[index_T]) == ">=")
+                    || (T[index_T].key == 'D' && element(T[index_T]) == "<=") || (T[index_T].key == 'D' && element(T[index_T]) == "<>") || (T[index_T].key == 'O' && element(T[index_T]) == "]")) && isLogicExpression))
         {
-            index_T++
-            FuncT()
+            println("E func returned")
+            return
         }
-        else
-        {
-            if (T[buf_index_T].key == 'O' && element(T[buf_index_T]) == "-")
+        else {
+            if (T[index_T].key == 'O' && element(T[index_T]) == "+")
             {
-                index_T++
                 FuncT()
             }
-            else Err(1); // нет знаков '-' или '+'
+            else
+            {
+                if (T[index_T].key == 'O' && element(T[index_T]) == "-")
+                {
+                    FuncT()
+                }
+                else Err(1); // нет знаков '-' или '+'
+            }
+            index_T++ // МБ придется убрать
         }
-        buf_index_T = ++index_T
-        index_T--
     }
-    println("E func ended");
+    if (notClosedBrackets == 0 && element(T[index_T]) == ")")
+        Err(11); // Too many closing brackets
+    println("E func ended $index_T");
 }
 
 fun FuncT()
 {
-    println("T func Start")
+    println("T func Start $index_T")
     FuncF()
-
-    while (!((T[buf_index_T].key == 'O' && element(T[buf_index_T]) == "$") || (T[buf_index_T].key == 'O' && element(T[buf_index_T]) == ")")
-                || (T[buf_index_T].key == 'O' && element(T[buf_index_T]) == "+") || (T[buf_index_T].key == 'O' && element(T[buf_index_T]) == "-")))
+    index_T++
+    while (!((T[index_T].key == 'O' && element(T[index_T]) == "$") || (T[index_T].key == 'O' && element(T[index_T]) == ")")
+                || (T[index_T].key == 'O' && element(T[index_T]) == "+") || (T[index_T].key == 'O' && element(T[index_T]) == "-")))
     {
-        buf_index_T = ++index_T
-        index_T--
-        if (T[buf_index_T].key == 'O' && element(T[buf_index_T]) == "*")
+        println("Зашли в цикл T $index_T")
+        if ((((T[index_T].key == 'O' && element(T[index_T]) == ">") || (T[index_T].key == 'O' && element(T[index_T]) == "<") || (T[index_T].key == 'O' && element(T[index_T]) == "=") || (T[index_T].key == 'D' && element(T[index_T]) == ">=")
+                    || (T[index_T].key == 'D' && element(T[index_T]) == "<=") || (T[index_T].key == 'D' && element(T[index_T]) == "<>") || (T[index_T].key == 'O' && element(T[index_T]) == "]")) && isLogicExpression))
         {
-            index_T++
-            FuncF()
+            println("F func returned")
+            return
         }
-        else
-        {
-            if (T[buf_index_T].key == 'O' && element(T[buf_index_T]) == "/")
+        else {
+            if (T[index_T].key == 'O' && element(T[index_T]) == "*")
             {
-                index_T++
                 FuncF()
             }
-            else Err(2); // нет знаков '*' или '/'
+            else
+            {
+                if (T[index_T].key == 'O' && element(T[index_T]) == "/")
+                {
+                    FuncF()
+                }
+                else Err(2); // нет знаков '*' или '/'
+            }
         }
-        buf_index_T = ++index_T
-        index_T--
+        // Тут был Index_T++
+        index_T++
     }
-    println("T func ended");
+    println("T func ended $index_T");
 }
+
 
 fun FuncF()
 {
-    buf_index_T = ++index_T
-    index_T--
-    println("F func Start");
-    if (T[buf_index_T].key == 'I') index_T++
+    println("F func Start $index_T");
+    index_T++
+    if (T[index_T].key == 'I') println("прошел I $index_T")
     else
     {
-        if (T[buf_index_T].key == 'C') index_T++
+        if (T[index_T].key == 'C') println("прошел C $index_T")
         else
         {
-            if (T[buf_index_T].key == 'O' && element(T[buf_index_T]) == "(")
+            if (T[index_T].key == 'O' && element(T[index_T]) == "(")
             {
-                index_T++
+                println("прошел O $index_T")
+                notClosedBrackets++
                 FuncE()
-                if (T[index_T].key == 'O' && element(T[index_T]) == ")") index_T++
+                if (T[index_T].key == 'O' && element(T[index_T]) == ")") notClosedBrackets-- // тут был index_T--
                 else Err(3); // нет закрывающей скобки
             }
             else Err(4); // нет индекса, числа или скобки
         }
     }
-    println("F func ended");
+    println("F func ended $index_T");
 }
+
+fun FuncVl()
+{
+    println("Vl func Start")
+    FuncTl()
+    index_T++
+    while (!((T[index_T].key == 'O' && element(T[index_T]) == "$") || (T[index_T].key == 'O' && element(T[index_T]) == ")")))
+    {
+        if (T[index_T].key == 'K' && element(T[index_T]) == "or")
+        {
+            FuncTl()
+        }
+        else
+        {
+            Err(11); // Ожидалось 'or'
+        }
+        index_T++
+    }
+    if (notClosedBrackets == 0 && element(T[index_T]) == ")")
+        Err(11); // Too many closing brackets
+    println("Vl func ended");
+}
+
+fun FuncTl()
+{
+    println("Tl func Start");
+    FuncFl();
+    index_T++
+    while (!(T[index_T].key == 'O' && element(T[index_T]) == "$") || (T[index_T].key == 'O' && element(T[index_T]) == ")") || (T[index_T].key == 'K' && element(T[index_T]) == "or"))
+    {
+        if (T[index_T].key == 'K' && element(T[index_T]) == "and")
+        {
+            FuncFl();
+        }
+        else
+        {
+            Err(10); // Ожидалось 'and'
+        }
+    }
+    println("Tl func ended");
+}
+
+
+fun FuncFl()
+{
+    println("Fl func Start");
+    index_T++
+    if (T[index_T].key == 'I')
+    else
+    {
+        if (T[index_T].key == 'K' && element(T[index_T]) == "true")
+        else
+        {
+            if (T[index_T].key == 'K' && element(T[index_T]) == "false")
+            else
+            {
+                if (T[index_T].key == 'O' && element(T[index_T]) == "(")
+                {
+                    notClosedBrackets++
+                    FuncVl()
+                    if (!(T[index_T].key == 'O' && element(T[index_T]) == ")")) Err(3); // ожидалось )
+                    else
+                    {
+                        notClosedBrackets--;
+                    }
+                }
+                else
+                {
+                    if (T[index_T].key == 'K' && element(T[index_T]) == "not")
+                    {
+                        FuncFl()
+                    }
+                    else
+                    {
+                        if (T[index_T].key == 'O' && element(T[index_T]) == "[")
+                        {
+                            isLogicExpression = true;
+                            FuncE()
+                            FuncZo()
+                            FuncE()
+                            isLogicExpression = false;
+                            if (T[index_T].key == 'O' && element(T[index_T]) == "]")
+                            else Err(9); // ожидалось ]
+                        }
+                        else
+                        {
+                            Err(10); // ожидалось I, 'true', 'false', FuncVl(), 'not'FuncFl() или [FuncE()]
+                        }
+                    }
+                }
+            }
+        }
+    }
+    println("Fl func ended");
+}
+
+
+fun FuncZo()
+{
+    println("Zo func Start");
+    index_T++
+    if (T[index_T].key == 'O')
+    {
+        when (element(T[index_T]))
+        {
+            "=" -> {
+                index_T++
+            }
+            ">" -> {
+                index_T++
+            }
+            "<" -> {
+                index_T++
+            }
+            else -> {
+                Err(6);
+            }
+        }
+    }
+    else
+    {
+        if (T[index_T].key == 'D')
+        when (element(T[index_T]))
+        {
+            ">=" -> {
+                index_T++
+            }
+            "<=" -> {
+                index_T++
+            }
+            "<>" -> {
+                index_T++
+            }
+            else -> {
+                Err(7);
+            }
+        }
+        else Err(8)
+    }
+    println("Zo func ended");
+}
+
+
 
 fun Err (x: Int) {
     when(x){
         0 -> {
             println("Error 0")
+            besconechost()
         }
         1 -> {
             println("Error 1")
+            besconechost()
         }
         2 -> {
             println("Error 2")
+            besconechost()
         }
         3 -> {
             println("Error 3")
+            besconechost()
         }
         4 -> {
             println("Error 4")
+            besconechost()
         }
         5 -> {
             println("Error 5")
+            besconechost()
+        }
+        6 -> {
+            println("Error 6")
+            besconechost()
+        }
+        7 -> {
+            println("Error 7")
+            besconechost()
+        }
+        8 -> {
+            println("Error 8")
+            besconechost()
+        }
+        9 -> {
+            println("Error 9")
+            besconechost()
+        }
+        10 -> {
+            println("Error 10")
+            besconechost()
+        }
+        11 -> {
+            println("Error 11")
+            besconechost()
+        }
+        12 -> {
+            println("Error 12")
+            besconechost()
+        }
+        13 -> {
+            println("Error 13")
+            besconechost()
+        }
+        14 -> {
+            println("Error 14")
+            besconechost()
+        }
+        15 -> {
+            println("Error 15")
+            besconechost()
+        }
+        16 -> {
+            println("Error 16")
+            besconechost()
+        }
+        17 -> {
+            println("Error 17")
+            besconechost()
+        }
+        18 -> {
+            println("Error 18")
+            besconechost()
+        }
+        19 -> {
+            println("Error 19")
+            besconechost()
         }
     }
 }
